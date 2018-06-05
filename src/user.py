@@ -13,7 +13,6 @@ class User:
         
 
     def login(self, ID_No, usrpwd):
-        #self.cur.execute()
         pass
 
     def create_request(self, prob_title, prob_desc, req_type, id_no):
