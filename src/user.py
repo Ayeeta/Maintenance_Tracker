@@ -23,15 +23,31 @@ class User:
          (prob_title, prob_desc, req_type, id_no))
         self.conn.commit()
 
-    def modify_request(self, prob_id, prob_title, prob_desc, req_type, id_no):
+    def modify_request(self, prob_id, prob_title, prob_desc):
         #fail if id_no doesn't exist
         prob_id = int(prob_id)
-        self.cur.execute("Insert into urequest(prob_title, prob_desc, req_type) values(%s,%s, %s) where prob_id=%s",
-         (prob_title, prob_desc, req_type), prob_id)
+        #request_status = 'unapproved'
+        self.cur.execute("Update urequests set prob_title = '{}', prob_desc = '{}' where prob_id = '{}'".format(prob_title, prob_desc, prob_id))
+        self.conn.commit()
     
     def delete_request(self, prob_id, prob_title, prob_desc, req_type, id_no):
         #fail if id_no doesn't exist
         pass
+
+    def approve_request(self, prob_id):
+        status = "Approved"
+        self.cur.execute("Update urequests set req_status = '{}' where prob_id = '{}'".format(status, prob_id))
+        self.conn.commit()
+
+    def disapprove_request(self, prob_id):
+        status = "Disapproved"
+        self.cur.execute("Update urequests set req_status = '{}' where prob_id = '{}'".format(status, prob_id))
+        self.conn.commit()
+
+    def resolved_request(self, prob_id):
+        status = "Resolved"
+        self.cur.execute("Update urequests set req_status = '{}' where prob_id = '{}'".format(status, prob_id))
+        self.conn.commit()
 
     def get_all(self):
         self.cur.execute("Select prob_id, prob_title, prob_desc, req_type, post_date, id_no, req_status from urequests")
@@ -50,6 +66,41 @@ class User:
             result_dict = {}
         
         return result_list
+
+    def get_userRequest(self, ID_No):
+        self.cur.execute("Select  * from urequests where id_no = '{}'".format(ID_No))
+        results = self.cur.fetchall()
+        result_dict = {}
+        result_list = []
+        for result in results:
+            result_dict['prob_id'] = result[0]
+            result_dict['prob_title'] = result[1]
+            result_dict['prob_desc'] = result[2]
+            result_dict['req_type'] = result[3]
+            result_dict['post_date'] = result[4]
+            result_dict['id_no'] = result[5]
+            result_dict['req_status'] = result[6]
+            result_list.append(result_dict)
+            result_dict = {}
+        
+        return result_list
+
     
     def get_request(self, prob_id):
-        pass
+        self.cur.execute("Select prob_id, prob_title, prob_desc, req_type,"+ 
+        "post_date, id_no, req_status from urequests where prob_id = %s", prob_id)
+        results = self.cur.fetchall()
+        result_dict = {}
+        result_list = []
+        for result in results:
+            result_dict['prob_id'] = result[0]
+            result_dict['prob_title'] = result[1]
+            result_dict['prob_desc'] = result[2]
+            result_dict['req_type'] = result[3]
+            result_dict['post_date'] = result[4]
+            result_dict['id_no'] = result[5]
+            result_dict['req_status'] = result[6]
+            result_list.append(result_dict)
+            result_dict = {}
+        
+        return result_list
