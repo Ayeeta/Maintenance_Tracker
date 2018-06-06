@@ -29,11 +29,35 @@ def create_req():
     usr.create_request(info['prob_title'], info['prob_desc'],info['req_type'],info['id_no'])
     return jsonify({"Message":"saved successfully"}), 200
 
+@app.route('/users/requests/<prob_id>',methods=['GET'])
+def getRequest(prob_id):
+    return jsonify(usr.get_request(prob_id))
+
+@app.route('/users/<id_no>/requests',methods=['GET'])
+def getUReq(id_no):
+    return jsonify(usr.get_userRequest(id_no))
+
 @app.route('/users/requests/<prob_id>', methods=['PUT'])
 def modify_req(prob_id):
     info = request.get_json()
-    usr.modify_request(prob_id, info['prob_title'], info['prob_desc'],info['req_type'], info['id_no'])
+    usr.modify_request(prob_id, info['prob_title'], info['prob_desc'])
     return jsonify({"Message":"Edit successful"}),200
+
+@app.route('/requests/<prob_id>/approve', methods=['PUT'])
+def approve_req(prob_id):
+    usr.approve_request(prob_id)
+    return jsonify({"Message":"Approve successful"}),200
+
+@app.route('/requests/<prob_id>/disapprove', methods=['PUT'])
+def disapprove_request(prob_id):
+    usr.disapprove_request(prob_id)
+    return jsonify({"Message":"Request Disapproved"}),200
+
+@app.route('/requests/<prob_id>/resolve', methods=['PUT'])
+def resolve_req(prob_id):
+    usr.resolved_request(prob_id)
+    return jsonify({"Message":"Request Done.."}),200
+
 
     
     
