@@ -1,29 +1,42 @@
 from src.user import User
 from flask import Flask, jsonify, request, make_response
+from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
+import datetime
+from functools import wraps,partial, WRAPPER_ASSIGNMENTS
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'maintenancerepairtracker'
 usr = User()
+
 
 @app.route('/auth/signup', methods=['POST'])
 def signup_usr():
     info = request.get_json()
-    usr.signup(info['id_no'], info['firstname'],info['lastname'],info['department'], info['office'],info['upassword'],info['confirm_password'])
+    pwd_encrypt = generate_password_hash(info['upassword'], method='sha256')
+    usr.signup(info['id_no'], info['firstname'],info['lastname'],info['department'], info['office'], pwd_encrypt)
     return jsonify({"Message":"saved successfully"}), 200
 
 @app.route('/auth/login', methods=['POST'])
 def login_usr():
     info = request.get_json()
+    auth = request.authorization
+    if not auth or not auth.username or not auth.password:
+        return make_response('Could not verify',401,{'WWW-Authenticate':'Basic realm="Login required"'})
+        
     result = usr.login(info['id_no'], info['upassword'])
     if result == []:
-        return jsonify({"Message":"Unauthorised"}), 401
+        return make_response('Could not verify',401,{'WWW-Authenticate':'Basic realm="Login required"'})
     else:
-        return jsonify({"Message":"You are logged in"}), 200
+        token = jwt.encode({'id_no':info['id_no'], 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},app.config['SECRET_KEY'])
+        return jsonify({'token':token.decode('UTF-8')})
+    
 
 @app.route('/requests/', methods=['GET'])
 def get_All():
     return jsonify(usr.get_all())
 
-@app.route('/users/requests/', methods=['POST'])
+@app.route('/users/requests', methods=['POST'])
 def create_req():
     info = request.get_json()
     usr.create_request(info['prob_title'], info['prob_desc'],info['req_type'],info['id_no'])
@@ -33,7 +46,7 @@ def create_req():
 def getRequest(prob_id):
     return jsonify(usr.get_request(prob_id))
 
-@app.route('/users/<id_no>/requests',methods=['GET'])
+@app.route('/users/requests',methods=['GET'])
 def getUReq(id_no):
     return jsonify(usr.get_userRequest(id_no))
 
@@ -57,13 +70,6 @@ def disapprove_request(prob_id):
 def resolve_req(prob_id):
     usr.resolved_request(prob_id)
     return jsonify({"Message":"Request Done.."}),200
-
-
-    
-    
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)    
