@@ -16,7 +16,6 @@ class User:
         self.cur.execute("Select * from urequests where id_no ='{}'".format(Id_no))
 
     def login(self,Id_no,usrpwd):
-        #pwd = check_password_hash(Id_no)
         self.cur.execute("select id_no, upassword from users where id_no='{}'".format(Id_no))
         results =  self.cur.fetchall()
         pwd_harsh = ""
@@ -96,7 +95,7 @@ class User:
     
     def get_request(self, prob_id):
         self.cur.execute("Select prob_id, prob_title, prob_desc, req_type,"+ 
-        "post_date, id_no, req_status from urequests where prob_id = %s", prob_id)
+        "post_date, id_no, req_status from urequests where prob_id = '{}'".format(prob_id))
         results = self.cur.fetchall()
         result_dict = {}
         result_list = []
