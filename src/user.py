@@ -21,7 +21,8 @@ class User:
         pwd_harsh = ""
         for result in results:
             pwd_harsh = result[1]        
-        return check_password_hash(pwd_harsh, usrpwd)        
+        if check_password_hash(pwd_harsh, usrpwd) == True:
+            return results       
         
 
     def create_request(self, prob_title, prob_desc, req_type, id_no):
