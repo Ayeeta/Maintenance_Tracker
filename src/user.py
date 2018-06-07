@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 
 class User:
@@ -6,15 +7,22 @@ class User:
         self.cur = self.conn.cursor()       
         
     
-    def signup(self, ID_No, fname, lname, department, office, upassword, confirm_password):
-        self.cur.execute("Insert into users values(%s,%s,%s,%s,%s,%s,%s)",
-        (ID_No, fname, lname, department, office, upassword, confirm_password))
+    def signup(self, ID_No, fname, lname, department, office, upassword):
+        self.cur.execute("Insert into users values(%s,%s,%s,%s,%s,%s)",
+        (ID_No, fname, lname, department, office, upassword))
         self.conn.commit()
-        
 
-    def login(self, ID_No, usrpwd):
-        self.cur.execute("Select id_no, upassword from users where id_no=%s AND upassword=%s",(ID_No, usrpwd))
-        return self.cur.fetchall()      
+    def find(self, Id_no):
+        self.cur.execute("Select * from urequests where id_no ='{}'".format(Id_no))
+
+    def login(self,Id_no,usrpwd):
+        #pwd = check_password_hash(Id_no)
+        self.cur.execute("select id_no, upassword from users where id_no='{}'".format(Id_no))
+        results =  self.cur.fetchall()
+        pwd_harsh = ""
+        for result in results:
+            pwd_harsh = result[1]        
+        return check_password_hash(pwd_harsh, usrpwd)        
         
 
     def create_request(self, prob_title, prob_desc, req_type, id_no):
