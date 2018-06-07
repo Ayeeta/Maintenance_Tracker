@@ -56,8 +56,12 @@ def get_All():
 @token_required
 def create_req(current_user):
     info = request.get_json()
-    usr.create_request(info['prob_title'], info['prob_desc'],info['req_type'],info['id_no'])
-    return jsonify({"Message":"saved successfully"}), 200
+    if info['prob_title'] and info['prob_desc'] and info['req_type'] != "":
+        usr.create_request(info['prob_title'], info['prob_desc'],info['req_type'], current_user)
+        return jsonify({"Message":"saved successfully"}), 200
+    
+    return jsonify({'Message':'No content'}), 204
+    
 
 @app.route('/api/v2/users/requests/<prob_id>',methods=['GET'])
 @token_required
