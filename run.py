@@ -58,8 +58,7 @@ def create_req(current_user):
     info = request.get_json()
     if info['prob_title'] and info['prob_desc'] and info['req_type'] != "":
         usr.create_request(info['prob_title'], info['prob_desc'],info['req_type'], current_user)
-        return jsonify({"Message":"saved successfully"}), 200
-    
+        return jsonify({"Message":"saved successfully"}), 200    
     return jsonify({'Message':'No content'}), 204
     
 
@@ -76,9 +75,15 @@ def getUReq(current_user):
 @app.route('/api/v2/users/requests/<prob_id>', methods=['PUT'])
 @token_required
 def modify_req(current_user, prob_id):
-    info = request.get_json()
-    usr.modify_request(prob_id, info['prob_title'], info['prob_desc'])
-    return jsonify({"Message":"Edit successful"}),200
+    try:
+        info = request.get_json()
+        if info['prob_title'] and info['prob_desc'] != "":
+            usr.modify_request(prob_id, info['prob_title'], info['prob_desc'])
+            return jsonify({"Message":"Edit successful"}),200
+        return jsonify({'Message':'No content'}), 204
+    except:
+        return jsonify({'Message':'Bad request'}), 400
+    
 
 @app.route('/api/v2/requests/<prob_id>/approve', methods=['PUT'])
 def approve_req(prob_id):

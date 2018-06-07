@@ -32,11 +32,10 @@ class User:
         self.conn.commit()
 
     def modify_request(self, prob_id, prob_title, prob_desc):
-        #fail if id_no doesn't exist
         prob_id = int(prob_id)
-        #request_status = 'unapproved'
-        self.cur.execute("Update urequests set prob_title = '{}', prob_desc = '{}' where prob_id = '{}'".format(prob_title, prob_desc, prob_id))
+        result = self.cur.execute("Update urequests set prob_title = '{}', prob_desc = '{}' where prob_id = '{}'".format(prob_title, prob_desc, prob_id))
         self.conn.commit()
+        return result
     
     def delete_request(self, prob_id, prob_title, prob_desc, req_type, id_no):
         #fail if id_no doesn't exist
