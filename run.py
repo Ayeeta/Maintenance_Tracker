@@ -72,11 +72,13 @@ def create_req(current_user):
 @app.route('/api/v2/users/requests/<prob_id>',methods=['GET'])
 @token_required
 def getRequest(current_user, prob_id):
-    result = usr.get_request(prob_id)
-    if result != None:
-        return jsonify(result)    
-    return Response("{'Message':'Nothing to show'}", status=404, mimetype='application/json') 
-    
+    try:
+        if usr.check_probid(prob_id) == True:
+            return jsonify(usr.get_request(prob_id))  
+        return make_response('No content for prob_id {}'.format(prob_id), 404)
+    except:
+        return make_response('Bad request, please restart server prob_id should be of type int', 400)
+           
 
 @app.route('/api/v2/users/requests',methods=['GET'])
 @token_required
@@ -89,13 +91,13 @@ def modify_req(current_user, prob_id):
     try:
         info = request.get_json()
         if info['prob_title'] and info['prob_desc'] != "":
-            if usr.check_probid(prob_id) == True:
+            if usr.check_probid(prob_id) == True and usr.check_status(prob_id) == False:
                 usr.modify_request(prob_id, info['prob_title'], info['prob_desc'])
                 return jsonify({"Message":"Edit successful"}),200
-            return make_response('No content prob_id {}'.format(prob_id), 404)
-        return jsonify({'Message':'No content'}), 204
+            return make_response('No content for prob_id {} Or request may have been approved'.format(prob_id), 404)
+        return make_response('Please fill in the missing fields', 204)
     except:
-        return make_response('Bad request', 400)
+        return make_response('Bad request, please restart server', 400)
     
 
 @app.route('/api/v2/requests/<prob_id>/approve', methods=['PUT'])
