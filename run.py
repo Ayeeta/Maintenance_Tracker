@@ -89,11 +89,13 @@ def modify_req(current_user, prob_id):
     try:
         info = request.get_json()
         if info['prob_title'] and info['prob_desc'] != "":
-            usr.modify_request(prob_id, info['prob_title'], info['prob_desc'])
-            return jsonify({"Message":"Edit successful"}),200
+            if usr.check_probid(prob_id) == True:
+                usr.modify_request(prob_id, info['prob_title'], info['prob_desc'])
+                return jsonify({"Message":"Edit successful"}),200
+            return make_response('No content prob_id {}'.format(prob_id), 404)
         return jsonify({'Message':'No content'}), 204
     except:
-        return make_response({'Message':'Bad request'}), 400
+        return make_response('Bad request', 400)
     
 
 @app.route('/api/v2/requests/<prob_id>/approve', methods=['PUT'])

@@ -41,6 +41,15 @@ class User:
     def delete_request(self, prob_id, prob_title, prob_desc, req_type, id_no):
         #fail if id_no doesn't exist
         pass
+    
+    def check_probid(self, prob_id):
+        self.cur.execute("select * from urequests where prob_id='{}'".format(prob_id))
+        results =  self.cur.fetchall()
+        if results == []:
+            return False
+        return True
+        
+
 
     def approve_request(self, prob_id):
         status = "Approved"
