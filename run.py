@@ -1,5 +1,5 @@
-from src.user import User
-from flask import Flask, jsonify, request, make_response
+from src.model import User
+from flask import Flask, jsonify, request, make_response, Response
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
@@ -29,9 +29,16 @@ def token_required(func):
 @app.route('/api/v2/auth/signup', methods=['POST'])
 def signup_usr():
     info = request.get_json()
-    pwd_encrypt = generate_password_hash(info['upassword'], method='sha256')
-    usr.signup(info['id_no'], info['firstname'],info['lastname'],info['department'], info['office'], pwd_encrypt)
-    return jsonify({"Message":"saved successfully"}), 200
+    if info['id_no'] and info['firstname'] and info['lastname'] and info['upassword'] != "":
+        try:
+            pwd_encrypt = generate_password_hash(info['upassword'], method='sha256')
+            usr.signup(info['id_no'], info['firstname'],info['lastname'],info['department'],
+                    info['office'], pwd_encrypt)
+        except:
+            return jsonify({'Message':'id_no already exists'}), 500
+        
+        return jsonify({"Message":"saved successfully"}), 200
+    return jsonify({'Message':'No content'}), 204
 
 @app.route('/api/v2/auth/login', methods=['POST'])
 def login_usr():
@@ -65,7 +72,11 @@ def create_req(current_user):
 @app.route('/api/v2/users/requests/<prob_id>',methods=['GET'])
 @token_required
 def getRequest(current_user, prob_id):
-    return jsonify(usr.get_request(prob_id))
+    result = usr.get_request(prob_id)
+    if result != None:
+        return jsonify(result)    
+    return Response("{'Message':'Nothing to show'}", status=404, mimetype='application/json') 
+    
 
 @app.route('/api/v2/users/requests',methods=['GET'])
 @token_required
@@ -82,13 +93,14 @@ def modify_req(current_user, prob_id):
             return jsonify({"Message":"Edit successful"}),200
         return jsonify({'Message':'No content'}), 204
     except:
-        return jsonify({'Message':'Bad request'}), 400
+        return make_response({'Message':'Bad request'}), 400
     
 
 @app.route('/api/v2/requests/<prob_id>/approve', methods=['PUT'])
 def approve_req(prob_id):
     usr.approve_request(prob_id)
     return jsonify({"Message":"Approve successful"}),200
+    
 
 @app.route('/api/v2/requests/<prob_id>/disapprove', methods=['PUT'])
 def disapprove_request(prob_id):
@@ -98,14 +110,7 @@ def disapprove_request(prob_id):
 @app.route('/api/v2/requests/<prob_id>/resolve', methods=['PUT'])
 def resolve_req(prob_id):
     usr.resolved_request(prob_id)
-    return jsonify({"Message":"Request Done.."}),200
-
-
-    
-    
-
-
-
+    return jsonify({"Message":"Request Done.."}),200  
 
 if __name__ == '__main__':
     app.run(debug=True)    
