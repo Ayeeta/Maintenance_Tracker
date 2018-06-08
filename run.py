@@ -45,11 +45,11 @@ def login_usr():
     info = request.get_json()
     auth = request.authorization
     if not auth or not auth.username or not auth.password:
-        return make_response('Could not verify',401,{'WWW-Authenticate':'Basic realm="Login required"'})
+        return jsonify({'Message':'Unauthorized'}), 401
         
     result = usr.login(info['id_no'], info['upassword'])
     if result == None:
-        return make_response('Could not verify',401,{'WWW-Authenticate':'Basic realm="Login required"'})
+        return jsonify({'Message':'Unauthorized'}), 401
     else:
         token = jwt.encode({'id_no':info['id_no'], 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=40)},app.config['SECRET_KEY'])
         return jsonify({'token':token.decode('UTF-8')})
