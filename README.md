@@ -2,11 +2,11 @@
 
 A set of API end points
 
-* POST /auth/signup - Register a user 
-* POST /auth/login - Login a user 
-* GET /users/requests - Fetch all requests for a logged in user
-* GET /users/requests/<prob_id> - Fetch a particular request for a logged in user
-* PUT /users/requests/<requestId> - Modifies a request for a logged in user only if not approved
+* POST /api/v2/auth/signup - Register a user 
+* POST /api/v2/auth/login - Login a user 
+* GET /api/v2/users/requests - Fetch all requests for a logged in user
+* GET /api/v2/users/requests/<prob_id> - Fetch a particular request for a logged in user
+* PUT /api/v2/users/requests/<requestId> - Modifies a request for a logged in user only if not approved
 
 
 
